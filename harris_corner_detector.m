@@ -21,9 +21,15 @@ local_maxima = mask.*H;            % Multiply with cornerness values
 indices = local_maxima < threshold;% When local maximum smaller then threshold
 local_maxima(indices) = 0;         % Set to zero
 
-%figure, imshow(image)
-%figure, imshow(local_maxima)
-
 [ r, c ] = find(local_maxima > 0); % Put result in rows and columns
+
+% TODO: Show all in one figure
+%imshow(Gx)
+%imshow(Gy)
+
+imshow(image)
+hold on;
+plot(c, r, 'go', 'LineWidth', 2, 'MarkerSize', 15);
+
 
 end
