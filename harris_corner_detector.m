@@ -1,25 +1,42 @@
-function [ H, r, c ] = harris_corner_detector(image, threshold, window_size)
-image = rgb2gray(image);           % Convert to grayscale
-[ Gx, Gy ] = imgradientxy(image);  % Compute the gradients
+function [ H, r, c ] = harris_corner_detector(image, window_size, threshold)
+% HARRIS_CORNER_DETECTOR  Find corners in an image.
+% Input parameters:
+%   image       A rgb or grayscale image.
+%   window_size The window size for determining local maxima of cornerness;
+%               a value from [4, 6, 8, 18, 26] (default: 26).
+%   treshold    The treshold for local maxima to be determined as corner;
+%               a value between 0 and 1 (default: 0.03).
 
-[ h, w ] = size(image);            % Get the image size
-Q = zeros(h, w, 2, 2);             % Initialize Q matrix
+image = rgb2gray(image);            % Convert to grayscale
+[ h, w ] = size(image);             % Get the image size
+[ Gx, Gy ] = imgradientxy(image);	% Compute the gradients
 
-A = imgaussfilt(Gx.^2, 1);         % A element of Q
-B = imgaussfilt(Gx.*Gy, 1);        % B element of Q
-C = imgaussfilt(Gy.^2, 1);         % C element of Q
+A = imgaussfilt(Gx.^2, 1);          % A element of Q matrix
+B = imgaussfilt(Gx.*Gy, 1);         % B element of Q matrix
+C = imgaussfilt(Gy.^2, 1);          % C element of Q matrix
 
-H = zeros(h, w);                   % Initialize H matrix
-                                   % Fill in cornerness values
+H = zeros(h, w);                    % Initialize H matrix
+                                    % Fill in cornerness values
 H(:, :) = (A .* C - B.^2) - 0.04 * (A + C).^2;
 
-if nargin == 2
-    window_size = 26;
+if nargin == 1
+    window_size = 26;               % Set default window size
+    threshold = 0.03;                % Set default treshold
+elseif nargin == 2
+    threshold = 0.03;                % Set default treshold
 end
-                                   % Create mask for maximum values within
-                                   % window size
-mask = imregionalmax(H, window_size); 
-local_maxima = mask.*H;            % Multiply with cornerness values
+           
+mask = imregionalmax(H, window_size); % Create mask for max values in window size
+local_maxima = mask.*H;             % Multiply with cornerness values
+
+max(max(local_maxima))
+min(min(local_maxima))
+mean(mean(local_maxima))
+
+local_maxima = local_maxima / max(max(local_maxima)); % Normalize values
+max(max(local_maxima))
+min(min(local_maxima))
+mean(mean(local_maxima))
 
 indices = local_maxima < threshold;% When local maximum smaller then threshold
 local_maxima(indices) = 0;         % Set to zero
@@ -33,6 +50,5 @@ local_maxima(indices) = 0;         % Set to zero
 imshow(image)
 hold on;
 plot(c, r, 'go', 'LineWidth', 2, 'MarkerSize', 15);
-
 
 end
