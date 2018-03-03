@@ -13,6 +13,9 @@ H = zeros(h, w);                   % Initialize H matrix
                                    % Fill in cornerness values
 H(:, :) = (A .* C - B.^2) - 0.04 * (A + C).^2;
 
+if nargin == 2
+    window_size = 26;
+end
                                    % Create mask for maximum values within
                                    % window size
 mask = imregionalmax(H, window_size); 
