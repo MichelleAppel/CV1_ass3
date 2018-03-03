@@ -21,33 +21,24 @@ H(:, :) = (A .* C - B.^2) - 0.04 * (A + C).^2;
 
 if nargin == 1
     window_size = 26;               % Set default window size
-    threshold = 0.03;                % Set default treshold
+    threshold = 0.03;               % Set default treshold
 elseif nargin == 2
-    threshold = 0.03;                % Set default treshold
+    threshold = 0.03;               % Set default treshold
 end
            
 mask = imregionalmax(H, window_size); % Create mask for max values in window size
 local_maxima = mask.*H;             % Multiply with cornerness values
-
-max(max(local_maxima))
-min(min(local_maxima))
-mean(mean(local_maxima))
-
 local_maxima = local_maxima / max(max(local_maxima)); % Normalize values
-max(max(local_maxima))
-min(min(local_maxima))
-mean(mean(local_maxima))
 
-indices = local_maxima < threshold;% When local maximum smaller then threshold
-local_maxima(indices) = 0;         % Set to zero
+indices = local_maxima < threshold; % When local maximum smaller then threshold
+local_maxima(indices) = 0;          % Set to zero
 
-[ r, c ] = find(local_maxima > 0); % Put result in rows and columns
+[ r, c ] = find(local_maxima > 0);  % Put result in rows and columns
 
-% TODO: Show all in one figure
-%imshow(Gx)
-%imshow(Gy)
-
-imshow(image)
+                                    % Plot derivates and detected corners
+figure, imshow(Gx), title('Derivative of image in x-direction')
+figure, imshow(Gy), title('Derivative of image in y-direction')
+figure, imshow(image), title('Detected corners')
 hold on;
 plot(c, r, 'go', 'LineWidth', 2, 'MarkerSize', 15);
 
