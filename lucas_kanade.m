@@ -49,27 +49,21 @@ for i = 1:row_regions
         im1region1 = cell2mat(image1_regions(i, j));
         im2region1 = cell2mat(image2_regions(i, j));
 
-        [Gx, Gy ] = imgradientxy(im1region1);   % Compute the gradients wrt x & y
+        [ Gx, Gy ] = imgradientxy(im1region1);  % Compute the gradients wrt x & y
         Gt = im1region1 - im2region1;           % Compute the gradients wrt t
-        [h, w] = size(Gx);
+        [ h, w ] = size(Gx);
         
         A(:, 1) = double(reshape(Gx, h*w, 1));
         A(:, 2) = double(reshape(Gy, h*w, 1)); 
         b       = double(reshape(Gt, h*w, 1)); 
         v = (transpose(A) * A) \ (transpose(A) * b);
         
-        if max(v) > max(best_v)
-            best_v = v;
-        end
-        
         A = [];  % reset to prevent dimension error
         
         avg_y_pixel = i*15-0.5*h;
         avg_x_pixel = j*15-0.5*w;
         
-        quiver(avg_x_pixel, avg_y_pixel, 25*v(1), 25*v(2))
-
-
+        quiver(avg_x_pixel, avg_y_pixel, 25*v(1), 25*v(2),'linewidth',5)
     end
 end
 
