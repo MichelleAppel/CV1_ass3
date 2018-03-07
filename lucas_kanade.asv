@@ -9,11 +9,9 @@ function lucas_kanade(image1, image2, regionWidth, regionHeight)
 %                   optical flow (default: 15).
 [ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
 
-figure, imshow(image1)
-
 if channels == 3
-   image1 = rgb2gray(image1);            % Convert to grayscale
-   image2 = rgb2gray(image2);            % Convert to grayscale
+    image1 = rgb2gray(image1);            % Convert to grayscale
+    image2 = rgb2gray(image2);            % Convert to grayscale
 end
 
 % synth1.pgm and synth2.pgm    % 128x128
@@ -47,6 +45,7 @@ image2_regions = mat2cell(image2, rowDivision, columnDivision);
 [ row_regions, column_regions ] = size(image1_regions);
 
 
+
 % FOR EACH REGION, CALCULATE THE OPTICAL FLOW
 flow_vectors = zeros(row_regions * column_regions, 4);
 counter = 1;
@@ -66,17 +65,19 @@ for i = 1:row_regions
         
         A = [];  % reset to prevent dimension error
         
-        avg_y_pixel = i*regionHeight-0.5*h;
-        avg_x_pixel = j*regionWidth-0.5*w;
+        avg_y_pixel = i*15-0.5*h;
+        avg_x_pixel = j*15-0.5*w;
         
         flow_vectors(counter, :) = [avg_x_pixel, avg_y_pixel, v(1), v(2)];
         counter = counter + 1;
     end
 end
 
+flow_vectors
 
+figure, imshow(image1)
 hold on;
-quiver(flow_vectors(:, 1), flow_vectors(:, 2), flow_vectors(:, 3), flow_vectors(:, 4), 'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2)
+quiver(flow_vectors(:, 1), flow_vectors(:, 2), flow_vectors(:, 3), flow_vectors(:, 4), 'linewidth', 2, 'color', 'g', 'MaxHeadSize', 2)
 
 % 3. When you have estimation for optical flow (Vx,Vy) of each region, 
 % you should display the results. 
