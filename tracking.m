@@ -19,7 +19,27 @@ upper_bound = max(1, r-y_region_bound);
 lower_bound = min(h, r+y_region_bound);
 
 image = rgb2gray(image);
-regions = image(upper_bound:lower_bound, left_bound:right_bound)
+
+regions = zeros(regionWidth, regionHeight, length(r));
+
+for i = 1:length(r)
+    region = image(upper_bound(i):lower_bound(i), left_bound(i):right_bound(i));
+    [ region_w, region_h ] = size(region);
+
+    if region_w < regionWidth || region_h < regionHeight
+        padding_region = zeros(regionWidth, regionHeight);
+        
+        padding_left_region_bound = floor((regionWidth - region_w) / 2)+1;
+        padding_right_region_bound = floor((regionWidth + region_w) / 2);
+        padding_upper_region_bound = floor((regionHeight - region_h) / 2)+1;
+        padding_lower_region_bound = floor((regionHeight + region_h) / 2);
+       
+        padding_region(padding_left_region_bound:padding_right_region_bound, padding_upper_region_bound:padding_lower_region_bound) = region;
+        region = padding_region;
+    end
+    regions(:, :, i) = region;
+end
+
 
 
 end
