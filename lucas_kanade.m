@@ -9,7 +9,7 @@ function lucas_kanade(image1, image2, regionWidth, regionHeight)
 %                   optical flow (default: 15).
 [ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
 
-figure, imshow(image1)
+
 
 if channels == 3
    image1 = rgb2gray(image1);            % Convert to grayscale
@@ -40,41 +40,13 @@ rowDivision = [regionHeight * ones(1, rowAmount), mod(height, regionHeight)];
 image1_regions = mat2cell(image1, rowDivision, columnDivision);
 image2_regions = mat2cell(image2, rowDivision, columnDivision);
 
-
 % 2. For each region compute A, AT and b. 
 % Then, estimate optical flow as given in Equation 20.
 
-[ row_regions, column_regions ] = size(image1_regions);
-
-
 % FOR EACH REGION, CALCULATE THE OPTICAL FLOW
-flow_vectors = zeros(row_regions * column_regions, 4);
-counter = 1;
-for i = 1:row_regions
-    for j = 1:column_regions
-        im1region1 = cell2mat(image1_regions(i, j));
-        im2region1 = cell2mat(image2_regions(i, j));
+flow_vectors = solve_flow_vectors(image1_regions, image2_regions);
 
-        [ Gx, Gy ] = imgradientxy(im1region1);  % Compute the gradients wrt x & y
-        Gt = im1region1 - im2region1;           % Compute the gradients wrt t
-        [ h, w ] = size(Gx);
-        
-        A(:, 1) = double(reshape(Gx, h*w, 1));
-        A(:, 2) = double(reshape(Gy, h*w, 1)); 
-        b       = double(reshape(Gt, h*w, 1)); 
-        v = (transpose(A) * A) \ (transpose(A) * b);
-        
-        A = [];  % reset to prevent dimension error
-        
-        avg_y_pixel = i*regionHeight-0.5*h;
-        avg_x_pixel = j*regionWidth-0.5*w;
-        
-        flow_vectors(counter, :) = [avg_x_pixel, avg_y_pixel, v(1), v(2)];
-        counter = counter + 1;
-    end
-end
-
-
+figure, imshow(image1)
 hold on;
 quiver(flow_vectors(:, 1), flow_vectors(:, 2), flow_vectors(:, 3), flow_vectors(:, 4), 'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2)
 

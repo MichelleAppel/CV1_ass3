@@ -1,5 +1,5 @@
 function tracking(image, regionWidth, regionHeight)
-[ h, w, ~ ] = size(image);
+[ h, w, ~ ] = size(image)
 [ ~, r, c ] = harris_corner_detector(image, 26, 0.02);
 
 if nargin == 1
@@ -18,8 +18,11 @@ right_bound = min(w, c+x_region_bound);
 upper_bound = max(1, r-y_region_bound);
 lower_bound = min(h, r+y_region_bound);
 
-image = rgb2gray(image);
-regions = image(upper_bound:lower_bound, left_bound:right_bound)
+length(r)
+regions = image(upper_bound:lower_bound, left_bound:right_bound, :);
+    
+disp(size(regions))
+
 
 
 end
