@@ -1,3 +1,6 @@
+% TODO: Fix skere gauss naar fspecial foshizzle
+% TODO: Misschien 1 functie icm tracking.m?
+
 function lucas_kanade(image1, image2, regionWidth, regionHeight)
 % LUCAS_KANADE  Find optical flow between two images.
 % Input parameters:
@@ -93,23 +96,14 @@ for i = 1:row_regions
     end
 end
 
-figure, imshow(image1)
-hold on;
-quiver(flow_vectors(:, 1), flow_vectors(:, 2), flow_vectors(:, 3), flow_vectors(:, 4), 'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2)
 
 % 3. When you have estimation for optical flow (Vx,Vy) of each region, 
 % you should display the results. 
 % There is a MATLAB function quiver which plots a set of 
 % two-dimensional vectors as arrows on the screen. 
 % Try to figure out how to use this to plot your optical flow results.
-
-%im = imread('autumn.tif');
-%[x,y] = meshgrid(-2:.2:2,-1:.15:1);
-%z = x .* exp(-x.^2 - y.^2); [px,py] = gradient(z,.2,.15);
-%quiver(x,y,px,py); axis image %plot the quiver to see the dimensions of the plot
-%hax = gca; %get the axis handle
-%image(hax.XLim,hax.YLim,im); %plot the image within the axis limits
-%hold on; %enable plotting overwrite
-%quiver(x,y,px,py) %plot the quiver on top of the image (same axis limits)
+figure, imshow(image1)
+hold on;
+quiver(flow_vectors(:, 1), flow_vectors(:, 2), flow_vectors(:, 3), flow_vectors(:, 4), 'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2)
 
 end
