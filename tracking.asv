@@ -79,12 +79,14 @@ for i = 1:no_regions
     % Apply Gauss
     G = fspecial('gaussian', h, 15);
 
+    im1region = double(im1region) *. G;
+    
     [ Gx, Gy ] = imgradientxy(im1region);  % Compute the gradients wrt x & y
-    Gx = Gx .* G;
-    Gy = Gy .* G;
+    %Gx = Gx .* G;
+    %Gy = Gy .* G;
     
     Gt = im1region - im2region;           % Compute the gradients wrt t
-    Gt = Gt .* G;
+    %Gt = Gt .* G;
     
     A(:, 1) = double(reshape(Gx, h*w, 1));
     A(:, 2) = double(reshape(Gy, h*w, 1)); 
@@ -132,6 +134,7 @@ regions = zeros(regionWidth, regionHeight, amount_of_regions);
         region = image(upper_bound(i):lower_bound(i), left_bound(i):right_bound(i));
         [ region_w, region_h ] = size(region);
 
+        % Create padding when on the edge of an image
         if region_w < regionWidth || region_h < regionHeight
             padding_region = zeros(regionWidth, regionHeight);
 
@@ -143,6 +146,7 @@ regions = zeros(regionWidth, regionHeight, amount_of_regions);
             padding_region(padding_left_region_bound:padding_right_region_bound, padding_upper_region_bound:padding_lower_region_bound) = region;
             region = padding_region;
         end
+        
         regions(:, :, i) = region;
     end
 end
