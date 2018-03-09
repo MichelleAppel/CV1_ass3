@@ -49,6 +49,7 @@ for i = 1:length(imgCell)-1
     hold on;
     % Draw arrows
     quiver(flow_vectors(:, 1, i), flow_vectors(:, 2, i), flow_vectors(:, 3, i), flow_vectors(:, 4, i), 'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2);
+    saveas(gcf, strcat('output/tracking/', directory_name, string(i), '.png'));
     M(i) = getframe(); 
     
     close ALL
@@ -77,7 +78,7 @@ for i = 1:no_regions
     im2region = image2_regions(:, :, i);       
 
     % Apply Gauss
-    G = fspecial('gaussian', h, 15);
+    G = fspecial('gaussian', h, 100);
 
     im1region = double(im1region);
     im2region = double(im2region);
