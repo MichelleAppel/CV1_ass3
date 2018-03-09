@@ -1,7 +1,4 @@
-% TODO: Fix skere gauss naar fspecial foshizzle
-% TODO: Misschien 1 functie icm tracking.m?
-
-function lucas_kanade(image1, image2, regionWidth, regionHeight)
+function lucas_kanade(image1, image2, regionWidth, regionHeight, sigma)
 % LUCAS_KANADE  Find optical flow between two images.
 % Input parameters:
 %   image1          A rgb or grayscale image.
@@ -10,26 +7,29 @@ function lucas_kanade(image1, image2, regionWidth, regionHeight)
 %                   optical flow (default: 15).
 %   regionHeight    The height of regions used to calculate
 %                   optical flow (default: 15).
-[ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
+%   sigma           The standard deviation for the Gaussian filter 
+%                   over the image regions.
+%   
 
+clc % clear command window
+close ALL % close all figures
 
-
-if channels == 3
-   image1 = rgb2gray(image1);            % Convert to grayscale
-   image2 = rgb2gray(image2);            % Convert to grayscale
-end
-
-% synth1.pgm and synth2.pgm    % 128x128
-% sphere1.ppm and sphere2.ppm  % 200x200x3
-%figure, imshow(image1)
-%figure, imshow(image2)
-
+% Default parameters
 if nargin == 2
-    regionWidth = 15; % default
-    regionHeight= 15; % default
+    regionWidth = 15; % Set default region width
+    regionHeight= 15; % Set default region height
+end
+if nargin < 5
+    sigma = 20; % Set default standard deviation for Gaussian filter
 end
 
-% 1. Divide input images on non-overlapping (15x15) regions.
+[ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
+if channels == 3
+   image1 = rgb2gray(image1); % Convert to grayscale
+   image2 = rgb2gray(image2); % Convert to grayscale
+end
+
+% 1. Divide input images on non-overlapping regions.
 
 % determine the amount of rows and columns
 columnAmount = floor(width / regionWidth);
@@ -43,26 +43,22 @@ rowDivision = [regionHeight * ones(1, rowAmount), mod(height, regionHeight)];
 image1_regions = mat2cell(image1, rowDivision, columnDivision);
 image2_regions = mat2cell(image2, rowDivision, columnDivision);
 
-% 2. For each region compute A, AT and b. 
-% Then, estimate optical flow as given in Equation 20.
 
-% FOR EACH REGION, CALCULATE THE OPTICAL FLOW
-% FOR EACH REGION, CALCULATE THE OPTICAL FLOW
-[ row_regions, column_regions ] = size(image1_regions);
+% 2. For each region compute A, A.T and b, and estimate optical flow (v).
 
-[ regionHeight, regionWidth ] = size(cell2mat(image1_regions(1)));
-
-flow_vectors = zeros(row_regions * column_regions, 4);
+[ row_regions, column_regions ] = size(image1_regions); % Amount of regions
+flow_vectors = zeros(row_regions * column_regions, 4); % Init
 counter = 1;
-for i = 1:row_regions
+for i = 1:row_regions % Loop through all regions
     for j = 1:column_regions
-        im1region = cell2mat(image1_regions(i, j));
-        im2region = cell2mat(image2_regions(i, j));
+        im1region = cell2mat(image1_regions(i, j)); % Turn cell into matrix
+        im2region = cell2mat(image2_regions(i, j)); % Turn cell into matrix
 
-        [ h, w ] = size(im1region);
+        [ h, w ] = size(im1region); % Height and width of current region
         
         % Incoming fugly piece of code to apply that Gauss
-        G = gauss2D(20 , max(regionHeight, regionWidth));
+        %G = gauss2D(sigma , max(regionHeight, regionWidth));
+        G = fspecial('gaussian', max(regionHeight, regionWidth), sigma);
 
         % Make matching dimensions
         if regionHeight ~= h
@@ -75,19 +71,20 @@ for i = 1:row_regions
             G = G(:, b:b+w-1 );
         end        
        
-        im1region = G .* double(im1region); % Apply
-        im2region = G .* double(im2region); % Apply
+        im1region = G .* double(im1region); % Apply Gaussian
+        im2region = G .* double(im2region); % Apply Gaussian
         
-        [ Gx, Gy ] = imgradientxy(im1region);  % Compute the gradients wrt x & y
+        [ Gx, Gy ] = imgradientxy(im1region); % Compute the gradients wrt x & y
         Gt = im1region - im2region;           % Compute the gradients wrt t
         
-        A(:, 1) = double(reshape(Gx, h*w, 1));
-        A(:, 2) = double(reshape(Gy, h*w, 1)); 
-        b       = double(reshape(Gt, h*w, 1));
-        v = (transpose(A) * A) \ (transpose(A) * b);
+        A(:, 1) = double(reshape(Gx, h*w, 1)); % First column of A matrix (Gx)
+        A(:, 2) = double(reshape(Gy, h*w, 1)); % Second column of A matrix (Gy)
+        b       = double(reshape(Gt, h*w, 1)); % b vector (Gt)
+        v = (transpose(A) * A) \ (transpose(A) * b); % Calculate optical flow
         
-        A = [];  % reset to prevent dimension error
+        A = []; % Reset to prevent dimension error
         
+        % For drawing the vector, determine middle y and x of region
         avg_y_pixel = i*regionHeight-0.5*h;
         avg_x_pixel = j*regionWidth-0.5*w;
         
@@ -97,13 +94,11 @@ for i = 1:row_regions
 end
 
 
-% 3. When you have estimation for optical flow (Vx,Vy) of each region, 
-% you should display the results. 
-% There is a MATLAB function quiver which plots a set of 
-% two-dimensional vectors as arrows on the screen. 
-% Try to figure out how to use this to plot your optical flow results.
-figure, imshow(image1)
+% 3. Display the resulting optical flow onto the image.
+figure, imshow(image1);
 hold on;
-quiver(flow_vectors(:, 1), flow_vectors(:, 2), flow_vectors(:, 3), flow_vectors(:, 4), 'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2)
+quiver(flow_vectors(:, 1), flow_vectors(:, 2), ...
+    flow_vectors(:, 3), flow_vectors(:, 4), ...
+    'linewidth', 1, 'color', 'g', 'MaxHeadSize', 2);
 
 end

@@ -7,8 +7,22 @@ function [ H, r, c ] = harris_corner_detector(image, window_size, threshold)
 %   treshold    The treshold for local maxima to be determined as corner;
 %               a value between 0 and 1 (default: 0.03).
 
-image = rgb2gray(image);            % Convert to grayscale
-[ h, w ] = size(image);             % Get the image size
+clc % clear command window
+close ALL % close all figures
+
+% Default parameters
+if nargin == 1
+    window_size = 26;               % Set default window size
+    threshold = 0.03;               % Set default treshold
+elseif nargin == 2
+    threshold = 0.03;               % Set default treshold
+end
+      
+[ h, w, channels ] = size(image);   % Get the image size
+if channels == 3
+    image = rgb2gray(image);        % Convert to grayscale
+end
+
 [ Gx, Gy ] = imgradientxy(image);	% Compute the gradients
 
 A = imgaussfilt(Gx.^2, 1);          % A element of Q matrix
@@ -19,13 +33,7 @@ H = zeros(h, w);                    % Initialize H matrix
                                     % Fill in cornerness values
 H(:, :) = (A .* C - B.^2) - 0.04 * (A + C).^2;
 
-if nargin == 1
-    window_size = 26;               % Set default window size
-    threshold = 0.03;               % Set default treshold
-elseif nargin == 2
-    threshold = 0.03;               % Set default treshold
-end
-           
+     
 mask = imregionalmax(H, window_size); % Create mask for max values in window size
 local_maxima = mask.*H;             % Multiply with cornerness values
 local_maxima = local_maxima / max(max(local_maxima)); % Normalize values
