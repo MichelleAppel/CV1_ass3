@@ -17,7 +17,7 @@ end
 
 % Import all images from directory
 D = directory_name;
-S = dir(fullfile(D,'*.jpg'));
+S = dir(fullfile(D,'*.jpeg'));
 
 no_images = numel(S);
 imgCell = cell(no_images); % Cell that is going to contain the images
@@ -29,7 +29,7 @@ end
 
 % Step 1: Locate feature points on first image
 first_image = imgCell{1};
-[ ~, r, c ] = harris_corner_detector(first_image, 26, 0.01);
+[ ~, r, c ] = harris_corner_detector(first_image, 26, 0.02);
 
 close ALL;
 
