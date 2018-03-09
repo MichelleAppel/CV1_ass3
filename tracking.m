@@ -54,8 +54,8 @@ for i = 1:length(imgCell)-1
     close ALL
     
     % Update feature points
-    c = round(c + 10*flow_vectors(:, 3, i));
-    r = round(r + 10*flow_vectors(:, 4, i));
+    c = round(c + 12*flow_vectors(:, 3, i));
+    r = round(r + 12*flow_vectors(:, 4, i));
 end
 movie(M, 42)
 
