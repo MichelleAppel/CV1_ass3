@@ -7,7 +7,6 @@ function [ H, r, c ] = harris_corner_detector(image, window_size, threshold)
 %   treshold    The treshold for local maxima to be determined as corner;
 %               a value between 0 and 1 (default: 0.03).
 
-clc % clear command window
 close ALL % close all figures
 
 % Default parameters
@@ -19,6 +18,7 @@ elseif nargin == 2
 end
       
 [ h, w, channels ] = size(image);   % Get the image size
+image_rgb = image;
 if channels == 3
     image = rgb2gray(image);        % Convert to grayscale
 end
@@ -46,7 +46,7 @@ local_maxima(indices) = 0;          % Set to zero
                                     % Plot derivates and detected corners
 figure, imshow(Gx), title('Derivative of image in x-direction')
 figure, imshow(Gy), title('Derivative of image in y-direction')
-figure, imshow(image), title('Detected corners')
+figure, imshow(image_rgb), title('Detected corners')
 hold on;
 plot(c, r, 'go', 'LineWidth', 2, 'MarkerSize', 15);
 
