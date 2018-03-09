@@ -19,7 +19,7 @@ if nargin == 2
     regionHeight= 15; % Set default region height
 end
 if nargin < 5
-    sigma = 10000; % Set default standard deviation for Gaussian filter
+    sigma = 100; % Set default standard deviation for Gaussian filter
 end
 
 [ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
