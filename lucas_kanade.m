@@ -24,28 +24,29 @@ if nargin < 5
 end
 
 [ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
+
+image_rgb = image1;
 if channels == 3
    image1 = rgb2gray(image1); % Convert to grayscale
    image2 = rgb2gray(image2); % Convert to grayscale
 end
 
-% 1. Divide input images on non-overlapping regions.
+% Step 1: Divide input images on non-overlapping regions.
 
-% determine the amount of rows and columns
+% Determine the amount of rows and columns
 columnAmount = floor(width / regionWidth);
 rowAmount = floor(height / regionHeight);
 
-% determine the amount of rows and columns per region
+% Determine the amount of rows and columns per region
 columnDivision = [regionWidth * ones(1, columnAmount), mod(width, regionWidth)];
 rowDivision = [regionHeight * ones(1, rowAmount), mod(height, regionHeight)];
 
-% divide the image into regions of the determined dimensions
+% Divide the image into regions of the determined dimensions
 image1_regions = mat2cell(image1, rowDivision, columnDivision);
 image2_regions = mat2cell(image2, rowDivision, columnDivision);
 
 
-% 2. For each region compute A, A.T and b, and estimate optical flow (v).
-
+% Step 2: For each region compute A, A.T and b, and estimate optical flow (v).
 [ row_regions, column_regions ] = size(image1_regions); % Amount of regions
 flow_vectors = zeros(row_regions * column_regions, 4); % Init
 counter = 1;
@@ -56,8 +57,6 @@ for i = 1:row_regions % Loop through all regions
 
         [ h, w ] = size(im1region); % Height and width of current region
         
-        % Incoming fugly piece of code to apply that Gauss
-        %G = gauss2D(sigma , max(regionHeight, regionWidth));
         G = fspecial('gaussian', max(regionHeight, regionWidth), sigma);
 
         % Make matching dimensions
@@ -65,16 +64,16 @@ for i = 1:row_regions % Loop through all regions
             b = floor((regionHeight - h)/2);
             G = G( b:b+h - 1 ,:);
         end
-        
         if regionWidth ~= w
             b = floor((regionWidth - w)/2);
             G = G(:, b:b+w-1 );
         end        
-       
-        im1region = G .* double(im1region); % Apply Gaussian
-        im2region = G .* double(im2region); % Apply Gaussian
+        
+        im1region = double(im1region) .* G;
+        im2region = double(im2region) .* G;
         
         [ Gx, Gy ] = imgradientxy(im1region); % Compute the gradients wrt x & y
+
         Gt = im1region - im2region;           % Compute the gradients wrt t
         
         A(:, 1) = double(reshape(Gx, h*w, 1)); % First column of A matrix (Gx)
@@ -93,9 +92,8 @@ for i = 1:row_regions % Loop through all regions
     end
 end
 
-
 % 3. Display the resulting optical flow onto the image.
-figure, imshow(image1);
+figure, imshow(image_rgb);
 hold on;
 quiver(flow_vectors(:, 1), flow_vectors(:, 2), ...
     flow_vectors(:, 3), flow_vectors(:, 4), ...
