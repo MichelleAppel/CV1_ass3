@@ -79,12 +79,15 @@ for i = 1:no_regions
     % Apply Gauss
     G = fspecial('gaussian', h, 15);
 
-    im1region = double(im1region) .* G;
-    im2region = double(im2region) .* G;
+    im1region = double(im1region);
+    im2region = double(im2region);
     
     [ Gx, Gy ] = imgradientxy(im1region);  % Compute the gradients wrt x & y
+    Gx = Gx .* G;
+    Gy = Gy .* G;
 
     Gt = im1region - im2region;           % Compute the gradients wrt t
+    Gt = Gt .* G;
     
     A(:, 1) = double(reshape(Gx, h*w, 1));
     A(:, 2) = double(reshape(Gy, h*w, 1)); 

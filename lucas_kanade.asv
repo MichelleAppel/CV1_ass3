@@ -19,7 +19,7 @@ if nargin == 2
     regionHeight= 15; % Set default region height
 end
 if nargin < 5
-    sigma = 150; % Set default standard deviation for Gaussian filter
+    sigma = 1000; % Set default standard deviation for Gaussian filter
 end
 
 [ height, width, channels ] = size(image1); % Get the image1 size (equal to image2)
@@ -48,7 +48,6 @@ image2_regions = mat2cell(image2, rowDivision, columnDivision);
 % Step 2: For each region compute A, A.T and b, and estimate optical flow (v).
 [ row_regions, column_regions ] = size(image1_regions); % Amount of regions
 flow_vectors = zeros(row_regions * column_regions, 4); % Init
-
 counter = 1;
 for i = 1:row_regions % Loop through all regions
     for j = 1:column_regions
@@ -69,15 +68,12 @@ for i = 1:row_regions % Loop through all regions
             G = G(:, b:b+w-1 );
         end        
         
-        im1region = double(im1region);
+        im1region = double(im1region) .* G;
         im2region = double(im2region);
         
         [ Gx, Gy ] = imgradientxy(im1region); % Compute the gradients wrt x & y
-        Gx = Gx .* G;
-        Gy = Gy .* G;
-        
+
         Gt = im1region - im2region;           % Compute the gradients wrt t
-        Gt = Gt .* G;
         
         A(:, 1) = double(reshape(Gx, h*w, 1)); % First column of A matrix (Gx)
         A(:, 2) = double(reshape(Gy, h*w, 1)); % Second column of A matrix (Gy)
